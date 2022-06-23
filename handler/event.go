@@ -9,7 +9,7 @@ import (
 )
 
 // CreateEvent
-func (h handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
+func (h Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var event model.Event
 	requestBodyError := json.NewDecoder(r.Body).Decode(&event)
@@ -42,11 +42,11 @@ func (h handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 // GetEvent
 // Get a specific event details.
-func (h handler) GetEvent(w http.ResponseWriter, r *http.Request) {
+func (h Handler) GetEvent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	var event model.Event
-	notFoundError := h.DB.Find(&event, params["event_id"]).Where("created_at > ?", time.Now().Add(-24*time.Hour)).Error //TODO:: Need to exempt from the done events.
+	notFoundError := h.DB.Find(&event, params["event_id"]).Error
 	if notFoundError == nil {
 		w.WriteHeader(http.StatusCreated)
 		err := json.NewEncoder(w).Encode(event)
@@ -60,5 +60,15 @@ func (h handler) GetEvent(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			return
 		}
+	}
+}
+
+func (h Handler) GetUpcomingEvents(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var event []model.Event
+	h.DB.Order("id asc").Find(&event, "date > ?", time.Now().Add(-24*time.Hour))
+	err := json.NewEncoder(w).Encode(event)
+	if err != nil {
+		return
 	}
 }

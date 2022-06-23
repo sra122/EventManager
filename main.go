@@ -21,6 +21,7 @@ func main() {
 func initialise() {
 	DB := dbconnection.ConnectDb()
 	h := handler.New(DB)
+
 	router := mux.NewRouter()
 
 	//Employee
@@ -31,6 +32,7 @@ func initialise() {
 
 	//Event
 	router.HandleFunc("/events", h.CreateEvent).Methods("POST")
+	router.HandleFunc("/events", h.GetUpcomingEvents).Methods("GET")
 	router.HandleFunc("/event/{event_id}", h.GetEvent).Methods("GET")
 
 	//EmployeeEvent

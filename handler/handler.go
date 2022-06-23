@@ -7,15 +7,15 @@ import (
 	"log"
 )
 
-type handler struct {
+type Handler struct {
 	DB *gorm.DB
 }
 
-func New(db *gorm.DB) handler {
-	return handler{db}
+func New(db *gorm.DB) Handler {
+	return Handler{db}
 }
 
-func initialise() handler {
+func initialise() Handler {
 	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")

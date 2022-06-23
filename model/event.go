@@ -11,8 +11,8 @@ type eventDate time.Time
 
 type Event struct {
 	gorm.Model
-	Name      string     `json:"name"`
-	Date      eventDate  `json:"date"`
+	Name      *string    `json:"name" gorm:"unique;not null"`
+	Date      *eventDate `json:"date"`
 	Employees []Employee `gorm:"many2many:event_employees;"`
 }
 

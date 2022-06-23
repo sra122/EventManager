@@ -10,12 +10,13 @@ import (
 type birthDay time.Time
 
 type Employee struct {
-	gorm.Model                       //TODO: Add email for converting unique record.
-	FirstName               string   `json:"firstName"`
-	LastName                string   `json:"lastName"`
+	gorm.Model
+	FirstName               *string  `json:"firstName" gorm:"not null"`
+	LastName                *string  `json:"lastName" gorm:"not null"`
 	BirthDay                birthDay `json:"birthDay"`
 	Gender                  string   `json:"gender"` // Gender
 	IsAccommodationRequired bool     `json:"is_accommodation_required"`
+	Email                   *string  `json:"email" gorm:"unique;not null"`
 }
 
 func (j *birthDay) UnmarshalJSON(b []byte) error {

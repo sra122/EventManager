@@ -10,7 +10,7 @@ import (
 
 // GetEmployees
 // Get List of Employees in the Organization/**
-func (h handler) GetEmployees(w http.ResponseWriter, r *http.Request) {
+func (h Handler) GetEmployees(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var employee []model.Employee
 	h.DB.Order("id asc").Find(&employee)
@@ -22,7 +22,7 @@ func (h handler) GetEmployees(w http.ResponseWriter, r *http.Request) {
 
 // CreateEmployee
 // Create an Employee to the Organization
-func (h handler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
+func (h Handler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var employee model.Employee
 	requestBodyError := json.NewDecoder(r.Body).Decode(&employee)
@@ -54,7 +54,7 @@ func (h handler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 
 // UpdateEmployee
 // Updates the Employee for the provided id in the url
-func (h handler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
+func (h Handler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	var employee model.Employee
@@ -97,11 +97,11 @@ func (h handler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 
 // DeleteEmployee
 // Delete Employee from the records
-func (h handler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
+func (h Handler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	var employee model.Employee
-	notFoundError := h.DB.First(&employee, params["employee_id"])
+	notFoundError := h.DB.First(&employee, params["employee_id"]).Error
 	if notFoundError != nil {
 		//If employee record not found with the provided id.
 		w.WriteHeader(http.StatusNotFound)

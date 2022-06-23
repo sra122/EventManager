@@ -1,6 +1,7 @@
 package dbconnection
 
 import (
+	"example.com/hello/model"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -26,6 +27,10 @@ func ConnectDb() *gorm.DB {
 		fmt.Println(err.Error())
 		panic("Cannot connect to DB")
 	}
+
+	DB.AutoMigrate(&model.Employee{})
+	DB.AutoMigrate(&model.Event{})
+	DB.AutoMigrate(&model.EventEmployees{})
 
 	return DB
 }
