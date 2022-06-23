@@ -14,7 +14,7 @@ func (h Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	var event model.Event
 	requestBodyError := json.NewDecoder(r.Body).Decode(&event)
 	if requestBodyError != nil {
-		// Error in the requestbody.
+		// Error in the request body.
 		w.WriteHeader(http.StatusBadRequest)
 		err := json.NewEncoder(w).Encode(requestBodyError.Error())
 		if err != nil {
@@ -63,6 +63,8 @@ func (h Handler) GetEvent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetUpcomingEvents
+// Considering event for complete day, which starts at 00:00 hours
 func (h Handler) GetUpcomingEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var event []model.Event

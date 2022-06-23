@@ -11,14 +11,15 @@ import (
 )
 
 func main() {
+	//Load Environment Variables
 	err := godotenv.Load(".env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
-	initialise()
+	initialiseMain()
 }
 
-func initialise() {
+func initialiseMain() {
 	DB := dbconnection.ConnectDb()
 	h := handler.New(DB)
 

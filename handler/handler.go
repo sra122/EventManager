@@ -16,6 +16,7 @@ func New(db *gorm.DB) Handler {
 	return Handler{db}
 }
 
+// Initialise for UnitTests
 func initialise() Handler {
 	err := godotenv.Load("../.env")
 	if err != nil {
@@ -27,6 +28,7 @@ func initialise() Handler {
 	return h
 }
 
+// Drop the table after testing.
 func dropTable(handler Handler) {
 
 	handler.DB.Migrator().DropTable(&model.Employee{})

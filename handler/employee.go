@@ -87,7 +87,7 @@ func (h Handler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		// Error occurred during the save of Entity
-		w.WriteHeader(http.StatusBadGateway)
+		w.WriteHeader(http.StatusInternalServerError)
 		err := json.NewEncoder(w).Encode(error.Error())
 		if err != nil {
 			return
@@ -127,5 +127,4 @@ func (h Handler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
 }

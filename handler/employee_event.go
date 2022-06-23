@@ -59,6 +59,7 @@ func (h Handler) GetEmployeesForEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// If Query Parameters is not empty
 	if accommodationQuery != "" {
 		err = h.DB.Preload("Employees", "is_accommodation_required", accommodationQuery).Find(&event, params["event_id"]).Error
 	} else {

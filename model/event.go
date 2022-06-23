@@ -9,6 +9,7 @@ import (
 
 type eventDate time.Time
 
+// Event Model
 type Event struct {
 	gorm.Model
 	Name      *string    `json:"name" gorm:"unique;not null"`

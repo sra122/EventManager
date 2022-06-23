@@ -9,6 +9,7 @@ import (
 
 type birthDay time.Time
 
+// Employee Model
 type Employee struct {
 	gorm.Model
 	FirstName               *string  `json:"firstName" gorm:"not null"`
