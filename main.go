@@ -38,7 +38,6 @@ func initialise() {
 	//EmployeeEvent
 	router.HandleFunc("/event/{event_id}/employees", h.AddEmployeeForEvent).Methods("POST")
 	router.HandleFunc("/event/{event_id}/employees", h.GetEmployeesForEvent).Methods("GET")
-	router.HandleFunc("/event/{event_id}/employees", h.GetEmployeesForEvent).Methods("GET").Queries("is_accommodation_required", "{accommodation}")
 
 	port := os.Getenv("PORT")
 	log.Fatal(http.ListenAndServe(":"+port, router))

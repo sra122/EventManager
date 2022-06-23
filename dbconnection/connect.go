@@ -20,7 +20,6 @@ func ConnectDb() *gorm.DB {
 	dbPort := os.Getenv("DB_PORT")
 
 	var DNS = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s", host, userName, password, dbName, dbPort)
-	//var DNS = "postgres://postgres:postgres@db:5432/postgres"
 	DB, err = gorm.Open(postgres.Open(DNS), &gorm.Config{})
 
 	if err != nil {
@@ -35,6 +34,32 @@ func ConnectDb() *gorm.DB {
 	return DB
 }
 
-func closeDb() {
+func ConnectTestDb() *gorm.DB {
 
+	var DB *gorm.DB
+	var err error
+
+	host := os.Getenv("TEST_DB_HOST")
+	userName := os.Getenv("TEST_DB_USERNAME")
+	password := os.Getenv("TEST_DB_PASSWORD")
+	dbName := os.Getenv("TEST_DB_NAME")
+	dbPort := os.Getenv("TEST_DB_PORT")
+
+	var DNS = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s", host, userName, password, dbName, dbPort)
+	DB, err = gorm.Open(postgres.Open(DNS), &gorm.Config{})
+
+	if err != nil {
+		fmt.Println(err.Error())
+		panic("Cannot connect to DB")
+	}
+
+	DB.Migrator().DropTable(&model.Employee{})
+	DB.Migrator().DropTable(&model.Event{})
+	DB.Migrator().DropTable(&model.EventEmployees{})
+
+	DB.AutoMigrate(&model.Employee{})
+	DB.AutoMigrate(&model.Event{})
+	DB.AutoMigrate(&model.EventEmployees{})
+
+	return DB
 }

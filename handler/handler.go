@@ -2,6 +2,7 @@ package handler
 
 import (
 	"example.com/hello/dbconnection"
+	"example.com/hello/model"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 	"log"
@@ -20,8 +21,15 @@ func initialise() Handler {
 	if err != nil {
 		log.Fatalf("Error loading .env file")
 	}
-	DB := dbconnection.ConnectDb()
+	DB := dbconnection.ConnectTestDb()
 	h := New(DB)
 
 	return h
+}
+
+func dropTable(handler Handler) {
+
+	handler.DB.Migrator().DropTable(&model.Employee{})
+	handler.DB.Migrator().DropTable(&model.Event{})
+	handler.DB.Migrator().DropTable(&model.EventEmployees{})
 }

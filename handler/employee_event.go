@@ -68,9 +68,11 @@ func (h Handler) GetEmployeesForEvent(w http.ResponseWriter, r *http.Request) {
 	if err == nil {
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(event)
+		return
 	} else {
 		// Error while fetching the records
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(err.Error())
+		return
 	}
 }
