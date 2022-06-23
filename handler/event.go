@@ -16,18 +16,27 @@ func (h handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	if requestBodyError != nil {
 		// Error in the requestbody.
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(requestBodyError.Error())
+		err := json.NewEncoder(w).Encode(requestBodyError.Error())
+		if err != nil {
+			return
+		}
 		return
 	}
 
 	error := h.DB.Create(&event).Error
 	if error == nil {
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(event)
+		err := json.NewEncoder(w).Encode(event)
+		if err != nil {
+			return
+		}
 	} else {
 		// Error while creating an entity
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(error.Error())
+		err := json.NewEncoder(w).Encode(error.Error())
+		if err != nil {
+			return
+		}
 	}
 }
 
@@ -37,13 +46,19 @@ func (h handler) GetEvent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	var event model.Event
-	notFoundError := h.DB.Find(&event, params["event_id"]).Where("created_at > ?", time.Now()).Error //ToDO:: Need to exempt from the done events.
+	notFoundError := h.DB.Find(&event, params["event_id"]).Where("created_at > ?", time.Now().Add(-24*time.Hour)).Error //TODO:: Need to exempt from the done events.
 	if notFoundError == nil {
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(event)
+		err := json.NewEncoder(w).Encode(event)
+		if err != nil {
+			return
+		}
 	} else {
 		// Record not found for the provided Id.
 		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode("Event not found for provided id " + params["event_id"])
+		err := json.NewEncoder(w).Encode("Event not found for provided id " + params["event_id"])
+		if err != nil {
+			return
+		}
 	}
 }

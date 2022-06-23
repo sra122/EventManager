@@ -14,7 +14,10 @@ func (h handler) GetEmployees(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var employee []model.Employee
 	h.DB.Order("id asc").Find(&employee)
-	json.NewEncoder(w).Encode(employee)
+	err := json.NewEncoder(w).Encode(employee)
+	if err != nil {
+		return
+	}
 }
 
 // CreateEmployee
@@ -26,17 +29,26 @@ func (h handler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	if requestBodyError != nil {
 		// If request body doesn't fit according to the requirements
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(strings.Trim(requestBodyError.Error(), "\""))
+		err := json.NewEncoder(w).Encode(strings.Trim(requestBodyError.Error(), "\""))
+		if err != nil {
+			return
+		}
 		return
 	}
 	error := h.DB.Create(&employee).Error
 	if error == nil {
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(employee)
+		err := json.NewEncoder(w).Encode(employee)
+		if err != nil {
+			return
+		}
 	} else {
 		//Error occurred during creating of employee
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(error.Error())
+		err := json.NewEncoder(w).Encode(error.Error())
+		if err != nil {
+			return
+		}
 	}
 }
 
@@ -50,28 +62,40 @@ func (h handler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	if notFoundError != nil {
 		//If employee record not found with the provided id.
 		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode("Employee record is not found with id " + params["employee_id"])
+		err := json.NewEncoder(w).Encode("Employee record is not found with id " + params["employee_id"])
+		if err != nil {
+			return
+		}
 		return
 	}
 	requestBodyError := json.NewDecoder(r.Body).Decode(&employee)
 	if requestBodyError != nil {
-		// If requestbody doesn't fit according to the requirements
+		// If request body doesn't fit according to the requirements
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(strings.Trim(requestBodyError.Error(), "\""))
+		err := json.NewEncoder(w).Encode(strings.Trim(requestBodyError.Error(), "\""))
+		if err != nil {
+			return
+		}
 		return
 	}
 	error := h.DB.Save(&employee).Error
 	if error == nil {
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(employee)
+		err := json.NewEncoder(w).Encode(employee)
+		if err != nil {
+			return
+		}
 	} else {
 		// Error occurred during the save of Entity
 		w.WriteHeader(http.StatusBadGateway)
-		json.NewEncoder(w).Encode(error.Error())
+		err := json.NewEncoder(w).Encode(error.Error())
+		if err != nil {
+			return
+		}
 	}
 }
 
-// DeleteEmplpoyee
+// DeleteEmployee
 // Delete Employee from the records
 func (h handler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
@@ -81,18 +105,27 @@ func (h handler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 	if notFoundError != nil {
 		//If employee record not found with the provided id.
 		w.WriteHeader(http.StatusNotFound)
-		json.NewEncoder(w).Encode("Employee record is not found with id " + params["employee_id"])
+		err := json.NewEncoder(w).Encode("Employee record is not found with id " + params["employee_id"])
+		if err != nil {
+			return
+		}
 		return
 	}
 
 	error := h.DB.Delete(&employee, params["employee_id"]).Error
 	if error == nil {
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode("Employee is deleted ||")
+		err := json.NewEncoder(w).Encode("Employee is deleted ||")
+		if err != nil {
+			return
+		}
 	} else {
 		// Error occurred during the delete operation.
 		w.WriteHeader(http.StatusBadGateway)
-		json.NewEncoder(w).Encode(error.Error())
+		err := json.NewEncoder(w).Encode(error.Error())
+		if err != nil {
+			return
+		}
 	}
 
 }

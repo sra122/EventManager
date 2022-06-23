@@ -1,26 +1,13 @@
 package handler
 
 import (
-	"example.com/hello/dbconnection"
-	"github.com/joho/godotenv"
+	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 )
-
-func initialise() handler {
-	err := godotenv.Load("../.env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-	DB := dbconnection.ConnectDb()
-	h := New(DB)
-
-	return h
-}
 
 func TestHandler_GetEmployees(t *testing.T) {
 	h := initialise()
@@ -61,8 +48,13 @@ func TestHandler_CreateEmployeeWithWrongDateFormat(t *testing.T) {
 func TestHandler_UpdateEmployeeSuccessScenario(t *testing.T) {
 	h := initialise()
 	reader := strings.NewReader("{\n    \"firstName\" : \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : false\n}")
-	req := httptest.NewRequest(http.MethodPut, "/employees/1", reader)
+	req := httptest.NewRequest(http.MethodPut, "/employees/{employee_id}", reader)
 	w := httptest.NewRecorder()
+	vars := map[string]string{
+		"employee_id": "1",
+	}
+	req = mux.SetURLVars(req, vars)
+
 	h.CreateEmployee(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
 }

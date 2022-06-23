@@ -18,10 +18,6 @@ func main() {
 	initialise()
 }
 
-func LoadEnvFile() {
-
-}
-
 func initialise() {
 	DB := dbconnection.ConnectDb()
 	h := handler.New(DB)
