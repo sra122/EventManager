@@ -1,53 +1,25 @@
 version: '3'
 services:
   app:
-    container_name: full_app
     build: .
+    environment:
+      - DB_HOST=postgresql_database
+      - DB_USERNAME=admin
+      - DB_PASSWORD=admin1234
+      - DB_NAME=productDb
+      - DB_PORT=5432
     ports:
       - 8080:8080
     restart: on-failure
-    volumes:
-      - api:/app
     depends_on:
-      - fullstack-postgres
-    networks:
-      - fullstack
+      - postgresql_database
 
-
-  fullstack-postgres:
-    image: postgres:alpine
-    container_name: full_db_postgres
+  postgresql_database:
+    image: postgres:latest
     environment:
-      - POSTGRES_USER=${DB_USERNAME}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
-      - DATABASE_HOST=${DB_HOST}
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin1234
+      - POSTGRES_DB=productDb
     ports:
-      - '5432:5432'
-    volumes:
-      - database_postgres:/var/lib/postgresql/data
-    networks:
-      - fullstack
-
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin_container
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
-    depends_on:
-      - fullstack-postgres
-    ports:
-      - "5050:80"
-    networks:
-      - fullstack
-    restart: unless-stopped
-
-volumes:
-  api:
-  database_postgres:
-
-# Networks to be created to facilitate communication between containers
-networks:
-  fullstack:
-    driver: bridge
+      - "5432:5432"
+    restart: always

@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func ConnectDb() (*gorm.DB, error) {
+func ConnectDb() *gorm.DB {
 
 	var DB *gorm.DB
 	var err error
@@ -18,7 +18,8 @@ func ConnectDb() (*gorm.DB, error) {
 	dbName := os.Getenv("DB_NAME")
 	dbPort := os.Getenv("DB_PORT")
 
-	var DNS = "host=" + host + " user=" + userName + " password=" + password + " dbname=" + dbName + " port=" + dbPort
+	var DNS = fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s", host, userName, password, dbName, dbPort)
+	//var DNS = "postgres://postgres:postgres@db:5432/postgres"
 	DB, err = gorm.Open(postgres.Open(DNS), &gorm.Config{})
 
 	if err != nil {
@@ -26,7 +27,7 @@ func ConnectDb() (*gorm.DB, error) {
 		panic("Cannot connect to DB")
 	}
 
-	return DB, err
+	return DB
 }
 
 func closeDb() {
