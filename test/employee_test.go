@@ -1,4 +1,4 @@
-package employee
+package test
 
 import (
 	"github.com/gorilla/mux"
@@ -10,27 +10,27 @@ import (
 )
 
 func TestHandler_CreateEmployeeWithWrongRequestBody(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEmployeeDBConnection()
 	reader := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : 123,\n    \"email\" : \"sravan@gmail.com\" \n}")
 	req := httptest.NewRequest(http.MethodPost, "/employees", reader)
 	w := httptest.NewRecorder()
 	h.CreateEmployee(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-	DropTable(*conn)
+	DropEmployeeTable(*conn)
 }
 
 func TestHandler_CreateEmployeeWithWrongDateFormat(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEmployeeDBConnection()
 	reader := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"02-01-2006\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"sravan@gmail.com\" \n}")
 	req := httptest.NewRequest(http.MethodPost, "/employees", reader)
 	w := httptest.NewRecorder()
 	h.CreateEmployee(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-	DropTable(*conn)
+	DropEmployeeTable(*conn)
 }
 
 func TestHandler_CreateEmployeeWithSameEmailId(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEmployeeDBConnection()
 	readerFirst := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"sravan@gmail.com\" \n}")
 	firstRequest := httptest.NewRequest(http.MethodPost, "/employees", readerFirst)
 	firstWrite := httptest.NewRecorder()
@@ -42,22 +42,21 @@ func TestHandler_CreateEmployeeWithSameEmailId(t *testing.T) {
 	write := httptest.NewRecorder()
 	h.CreateEmployee(write, request)
 	assert.Equal(t, http.StatusInternalServerError, write.Code)
-	DropTable(*conn)
+	DropEmployeeTable(*conn)
 }
 
 func TestHandler_CreateEmployeeSuccessScenario(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEmployeeDBConnection()
 	reader := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	req := httptest.NewRequest(http.MethodPost, "/employees", reader)
 	w := httptest.NewRecorder()
 	h.CreateEmployee(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
-	DropTable(*conn)
+	DropEmployeeTable(*conn)
 }
 
 func TestHandler_UpdateEmployeeWithInvalidEmployeeId(t *testing.T) {
-	h, conn := InitializeDBConnection()
-
+	h, conn := InitializeEmployeeDBConnection()
 	readerEmployeeCreate := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployeeCreate)
 	writeEmployee := httptest.NewRecorder()
@@ -74,11 +73,11 @@ func TestHandler_UpdateEmployeeWithInvalidEmployeeId(t *testing.T) {
 
 	h.UpdateEmployee(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
-	DropTable(*conn)
+	DropEmployeeTable(*conn)
 }
 
 func TestHandler_UpdateEmployeeWithBadBodyRequest(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEmployeeDBConnection()
 
 	readerEmployeeCreate := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployeeCreate)
@@ -96,11 +95,11 @@ func TestHandler_UpdateEmployeeWithBadBodyRequest(t *testing.T) {
 
 	h.UpdateEmployee(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-	DropTable(*conn)
+	DropEmployeeTable(*conn)
 }
 
 func TestHandler_UpdateEmployeeSuccessScenario(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEmployeeDBConnection()
 
 	readerEmployeeCreate := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployeeCreate)
@@ -118,11 +117,11 @@ func TestHandler_UpdateEmployeeSuccessScenario(t *testing.T) {
 
 	h.UpdateEmployee(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
-	DropTable(*conn)
+	DropEmployeeTable(*conn)
 }
 
 func TestHandler_UpdateEmployeeWithNullAsFirstName(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEmployeeDBConnection()
 
 	readerEmployeeCreate := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployeeCreate)
@@ -140,11 +139,11 @@ func TestHandler_UpdateEmployeeWithNullAsFirstName(t *testing.T) {
 
 	h.UpdateEmployee(w, req)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	DropTable(*conn)
+	DropEmployeeTable(*conn)
 }
 
 func TestHandler_GetEmployees(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEmployeeDBConnection()
 
 	readerEmployeeCreate := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployeeCreate)
@@ -156,11 +155,11 @@ func TestHandler_GetEmployees(t *testing.T) {
 	w := httptest.NewRecorder()
 	h.GetEmployees(w, req)
 	assert.Equal(t, http.StatusOK, w.Code)
-	DropTable(*conn)
+	DropEmployeeTable(*conn)
 }
 
 func TestHandler_DeleteEmployeeWithInvalidEmployeeId(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEmployeeDBConnection()
 
 	readerEmployeeCreate := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployeeCreate)
@@ -177,11 +176,11 @@ func TestHandler_DeleteEmployeeWithInvalidEmployeeId(t *testing.T) {
 
 	h.DeleteEmployee(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
-	DropTable(*conn)
+	DropEmployeeTable(*conn)
 }
 
 func TestHandler_DeleteEmployeeSuccessScenario(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEmployeeDBConnection()
 
 	readerEmployeeCreate := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployeeCreate)
@@ -198,5 +197,5 @@ func TestHandler_DeleteEmployeeSuccessScenario(t *testing.T) {
 
 	h.DeleteEmployee(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
-	DropTable(*conn)
+	DropEmployeeTable(*conn)
 }

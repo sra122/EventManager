@@ -2,11 +2,7 @@ package employee
 
 import (
 	"encoding/json"
-	"example.com/hello/dbconnection"
-	"example.com/hello/model"
-	"github.com/joho/godotenv"
 	"gorm.io/gorm"
-	"log"
 	"strings"
 	"time"
 )
@@ -39,24 +35,6 @@ type EmployeeRepository interface {
 	UpdateEmployee(employee Employee) (Employee, error)
 	FetchFirstEmployee(employee Employee, employeeId string) (Employee, error)
 	DeleteEmployee(employee Employee, employeeId string) (Employee, error)
-}
-
-func InitializeDBConnection() (*Task, *EmployeeConnection) {
-	err := godotenv.Load("../../.env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-	DB := dbconnection.ConnectTestDb()
-
-	empRepo := InitialiseEmployeeHandler(DB)
-	empTask := NewTask(empRepo)
-
-	return empTask, empRepo
-}
-
-// Drop the table after testing.
-func DropTable(conn EmployeeConnection) {
-	conn.DB.Migrator().DropTable(&model.Employee{})
 }
 
 func (h *EmployeeConnection) GetEmployees() ([]Employee, error) {

@@ -1,12 +1,8 @@
 package employee_event
 
 import (
-	"example.com/hello/dbconnection"
-	"example.com/hello/model"
 	"example.com/hello/pkg/event"
-	"github.com/joho/godotenv"
 	"gorm.io/gorm"
-	"log"
 )
 
 // EventEmployees Model
@@ -22,24 +18,6 @@ type EmployeeEventConnection struct {
 
 func InitialiseEmployeeEventHandler(db *gorm.DB) *EmployeeEventConnection {
 	return &EmployeeEventConnection{DB: db}
-}
-
-func InitializeDBConnection() (*Task, *EmployeeEventConnection) {
-	err := godotenv.Load("../../.env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-	DB := dbconnection.ConnectTestDb()
-
-	empRepo := InitialiseEmployeeEventHandler(DB)
-	empTask := NewTask(empRepo)
-
-	return empTask, empRepo
-}
-
-// Drop the table after testing.
-func DropTable(conn EmployeeEventConnection) {
-	conn.DB.Migrator().DropTable(&model.EventEmployees{})
 }
 
 type EmployeeEventRepository interface {

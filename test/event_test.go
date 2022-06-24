@@ -1,4 +1,4 @@
-package event
+package test
 
 import (
 	"github.com/gorilla/mux"
@@ -10,7 +10,7 @@ import (
 )
 
 func TestHandler_GetEventSuccessScenario(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEventDBConnection()
 	req := httptest.NewRequest(http.MethodGet, "/event/{event_id}", nil)
 	w := httptest.NewRecorder()
 
@@ -20,11 +20,11 @@ func TestHandler_GetEventSuccessScenario(t *testing.T) {
 	req = mux.SetURLVars(req, vars)
 	h.GetEvent(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
-	DropTable(*conn)
+	DropEventTable(*conn)
 }
 
 func TestHandler_GetEventWithInvalidEventId(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEventDBConnection()
 	req := httptest.NewRequest(http.MethodGet, "/event/{event_id}", nil)
 	w := httptest.NewRecorder()
 
@@ -34,60 +34,60 @@ func TestHandler_GetEventWithInvalidEventId(t *testing.T) {
 	req = mux.SetURLVars(req, vars)
 	h.GetEvent(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
-	DropTable(*conn)
+	DropEventTable(*conn)
 }
 
 func TestHandler_CreateEvent(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEventDBConnection()
 	reader := strings.NewReader("{\n    \"name\" : \"New Year\",\n    \"date\" : \"2022-12-31\"\n}")
 	req := httptest.NewRequest(http.MethodPost, "/event", reader)
 	w := httptest.NewRecorder()
 
 	h.CreateEvent(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
-	DropTable(*conn)
+	DropEventTable(*conn)
 }
 
 func TestHandler_CreateEventForWrongDateFormat(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEventDBConnection()
 	reader := strings.NewReader("{\n    \"name\" : \"New Year\",\n    \"date\" : \"12-12-2022\"\n}")
 	req := httptest.NewRequest(http.MethodPost, "/event", reader)
 	w := httptest.NewRecorder()
 
 	h.CreateEvent(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-	DropTable(*conn)
+	DropEventTable(*conn)
 }
 
 func TestHandler_CreateEventWithWrongRequestBody(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEventDBConnection()
 	reader := strings.NewReader("{\n\"date\" : \"12-12-2022\"\n}")
 	req := httptest.NewRequest(http.MethodPost, "/event", reader)
 	w := httptest.NewRecorder()
 
 	h.CreateEvent(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-	DropTable(*conn)
+	DropEventTable(*conn)
 }
 
 func TestHandler_CreateEventWithNullTitle(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEventDBConnection()
 	reader := strings.NewReader("{\n    \"name\" : null,\n    \"date\" : \"2022-07-07\"\n}")
 	req := httptest.NewRequest(http.MethodPost, "/event", reader)
 	w := httptest.NewRecorder()
 
 	h.CreateEvent(w, req)
 	assert.Equal(t, http.StatusInternalServerError, w.Code)
-	DropTable(*conn)
+	DropEventTable(*conn)
 }
 
 func TestHandler_GetUpcomingEvents(t *testing.T) {
-	h, conn := InitializeDBConnection()
+	h, conn := InitializeEventDBConnection()
 	reader := strings.NewReader("{\n\"date\" : \"12-12-2022\"\n}")
 	req := httptest.NewRequest(http.MethodPost, "/event", reader)
 	w := httptest.NewRecorder()
 
 	h.GetUpcomingEvents(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-	DropTable(*conn)
+	assert.Equal(t, http.StatusCreated, w.Code)
+	DropEventTable(*conn)
 }

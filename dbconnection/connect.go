@@ -1,7 +1,9 @@
 package dbconnection
 
 import (
-	"example.com/hello/model"
+	"example.com/hello/pkg/employee"
+	"example.com/hello/pkg/employee_event"
+	"example.com/hello/pkg/event"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -27,9 +29,9 @@ func ConnectDb() *gorm.DB {
 		panic("Cannot connect to DB")
 	}
 
-	DB.AutoMigrate(&model.Employee{})
-	DB.AutoMigrate(&model.Event{})
-	DB.AutoMigrate(&model.EventEmployees{})
+	DB.AutoMigrate(&employee.Employee{})
+	DB.AutoMigrate(&event.Event{})
+	DB.AutoMigrate(&employee_event.EventEmployees{})
 
 	return DB
 }
@@ -53,13 +55,13 @@ func ConnectTestDb() *gorm.DB {
 		panic("Cannot connect to DB")
 	}
 
-	DB.Migrator().DropTable(&model.Employee{})
-	DB.Migrator().DropTable(&model.Event{})
-	DB.Migrator().DropTable(&model.EventEmployees{})
+	DB.Migrator().DropTable(&employee.Employee{})
+	DB.Migrator().DropTable(&event.Event{})
+	DB.Migrator().DropTable(&employee_event.EventEmployees{})
 
-	DB.AutoMigrate(&model.Employee{})
-	DB.AutoMigrate(&model.Event{})
-	DB.AutoMigrate(&model.EventEmployees{})
+	DB.AutoMigrate(&employee.Employee{})
+	DB.AutoMigrate(&event.Event{})
+	DB.AutoMigrate(&employee_event.EventEmployees{})
 
 	return DB
 }

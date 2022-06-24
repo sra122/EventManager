@@ -1,8 +1,6 @@
-package employee_event
+package test
 
 import (
-	"example.com/hello/pkg/employee"
-	"example.com/hello/pkg/event"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -12,9 +10,9 @@ import (
 )
 
 func TestHandler_AddEmployeeForEvent(t *testing.T) {
-	empHand, empConn := employee.InitializeDBConnection()
-	eveHand, eveConn := event.InitializeDBConnection()
-	h, conn := InitializeDBConnection()
+	empHand, empConn := InitializeEmployeeDBConnection()
+	eveHand, eveConn := InitializeEventDBConnection()
+	h, conn := InitializeEmployeeEventDBConnection()
 
 	readerEmployee := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployee)
@@ -38,15 +36,15 @@ func TestHandler_AddEmployeeForEvent(t *testing.T) {
 	h.AddEmployeeForEvent(writeEmployeeEvent, reqEmployeeEvent)
 	assert.Equal(t, http.StatusCreated, writeEmployeeEvent.Code)
 
-	employee.DropTable(*empConn)
-	event.DropTable(*eveConn)
-	DropTable(*conn)
+	DropEmployeeTable(*empConn)
+	DropEventTable(*eveConn)
+	DropEmployeeEventTable(*conn)
 }
 
 func TestHandler_AddEmployeeForEventWithInvalidEventId(t *testing.T) {
-	empHand, empConn := employee.InitializeDBConnection()
-	eveHand, eveConn := event.InitializeDBConnection()
-	h, conn := InitializeDBConnection()
+	empHand, empConn := InitializeEmployeeDBConnection()
+	eveHand, eveConn := InitializeEventDBConnection()
+	h, conn := InitializeEmployeeEventDBConnection()
 
 	readerEmployee := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployee)
@@ -70,15 +68,16 @@ func TestHandler_AddEmployeeForEventWithInvalidEventId(t *testing.T) {
 	h.AddEmployeeForEvent(writeEmployeeEvent, reqEmployeeEvent)
 	assert.Equal(t, http.StatusBadRequest, writeEmployeeEvent.Code)
 
-	employee.DropTable(*empConn)
-	event.DropTable(*eveConn)
-	DropTable(*conn)
+	DropEmployeeTable(*empConn)
+	DropEventTable(*eveConn)
+	DropEmployeeEventTable(*conn)
 }
 
 func TestHandler_AddEmployeeForEventWithoutRequestBody(t *testing.T) {
-	empHand, empConn := employee.InitializeDBConnection()
-	eveHand, eveConn := event.InitializeDBConnection()
-	h, conn := InitializeDBConnection()
+	empHand, empConn := InitializeEmployeeDBConnection()
+	eveHand, eveConn := InitializeEventDBConnection()
+	h, conn := InitializeEmployeeEventDBConnection()
+
 	readerEmployee := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployee)
 	writeEmployee := httptest.NewRecorder()
@@ -99,16 +98,16 @@ func TestHandler_AddEmployeeForEventWithoutRequestBody(t *testing.T) {
 	req = mux.SetURLVars(req, vars)
 	h.AddEmployeeForEvent(w, req)
 	assert.Equal(t, http.StatusBadRequest, w.Code)
-
-	employee.DropTable(*empConn)
-	event.DropTable(*eveConn)
-	DropTable(*conn)
+	
+	DropEmployeeTable(*empConn)
+	DropEventTable(*eveConn)
+	DropEmployeeEventTable(*conn)
 }
 
 func TestHandler_GetEmployeesForEvent(t *testing.T) {
-	empHand, empConn := employee.InitializeDBConnection()
-	eveHand, eveConn := event.InitializeDBConnection()
-	h, conn := InitializeDBConnection()
+	empHand, empConn := InitializeEmployeeDBConnection()
+	eveHand, eveConn := InitializeEventDBConnection()
+	h, conn := InitializeEmployeeEventDBConnection()
 
 	readerEmployee := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployee)
@@ -141,15 +140,15 @@ func TestHandler_GetEmployeesForEvent(t *testing.T) {
 	h.GetEmployeesForEvent(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
 
-	employee.DropTable(*empConn)
-	event.DropTable(*eveConn)
-	DropTable(*conn)
+	DropEmployeeTable(*empConn)
+	DropEventTable(*eveConn)
+	DropEmployeeEventTable(*conn)
 }
 
 func TestHandler_GetEmployeesForInvalidEventId(t *testing.T) {
-	empHand, empConn := employee.InitializeDBConnection()
-	eveHand, eveConn := event.InitializeDBConnection()
-	h, conn := InitializeDBConnection()
+	empHand, empConn := InitializeEmployeeDBConnection()
+	eveHand, eveConn := InitializeEventDBConnection()
+	h, conn := InitializeEmployeeEventDBConnection()
 
 	readerEmployee := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployee)
@@ -183,15 +182,15 @@ func TestHandler_GetEmployeesForInvalidEventId(t *testing.T) {
 	h.GetEmployeesForEvent(w, req)
 	assert.Equal(t, http.StatusNotFound, w.Code)
 
-	employee.DropTable(*empConn)
-	event.DropTable(*eveConn)
-	DropTable(*conn)
+	DropEmployeeTable(*empConn)
+	DropEventTable(*eveConn)
+	DropEmployeeEventTable(*conn)
 }
 
 func TestHandler_GetEmployeesForEventWithAccommodationQuery(t *testing.T) {
-	empHand, empConn := employee.InitializeDBConnection()
-	eveHand, eveConn := event.InitializeDBConnection()
-	h, conn := InitializeDBConnection()
+	empHand, empConn := InitializeEmployeeDBConnection()
+	eveHand, eveConn := InitializeEventDBConnection()
+	h, conn := InitializeEmployeeEventDBConnection()
 
 	readerEmployee := strings.NewReader("{\n    \"firstName\": \"Sravan\",\n    \"lastName\" : \"Hello\",\n    \"birthDay\" : \"2006-01-02\",\n    \"gender\" : \"male\",\n    \"is_accommodation_required\" : true,\n    \"email\" : \"test@gmail.com\" \n}")
 	reqEmployee := httptest.NewRequest(http.MethodPost, "/employees", readerEmployee)
@@ -221,8 +220,8 @@ func TestHandler_GetEmployeesForEventWithAccommodationQuery(t *testing.T) {
 	h.GetEmployeesForEvent(w, req)
 	assert.Equal(t, http.StatusCreated, w.Code)
 
-	employee.DropTable(*empConn)
-	event.DropTable(*eveConn)
-	DropTable(*conn)
+	DropEmployeeTable(*empConn)
+	DropEventTable(*eveConn)
+	DropEmployeeEventTable(*conn)
 
 }

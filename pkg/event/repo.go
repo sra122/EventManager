@@ -2,12 +2,8 @@ package event
 
 import (
 	"encoding/json"
-	"example.com/hello/dbconnection"
-	"example.com/hello/model"
 	"example.com/hello/pkg/employee"
-	"github.com/joho/godotenv"
 	"gorm.io/gorm"
-	"log"
 	"strings"
 	"time"
 )
@@ -37,29 +33,11 @@ type EventRepository interface {
 	GetUpcomingEvents() ([]Event, error)
 }
 
-func InitializeDBConnection() (*Task, *EventConnection) {
-	err := godotenv.Load("../../.env")
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-	DB := dbconnection.ConnectTestDb()
-
-	empRepo := InitialiseEventHandler(DB)
-	empTask := NewTask(empRepo)
-
-	return empTask, empRepo
-}
-
-// Drop the table after testing.
-func DropTable(conn EventConnection) {
-	conn.DB.Migrator().DropTable(&model.Event{})
-}
-
 func (h *EventConnection) CreateEvent(event Event) (Event, error) {
 	error := h.DB.Create(&event).Error
 
 	if error != nil {
-		return Event{}, nil
+		return Event{}, error
 	}
 	return event, nil
 }
