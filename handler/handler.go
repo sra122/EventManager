@@ -17,7 +17,7 @@ func New(db *gorm.DB) Handler {
 }
 
 // Initialise for UnitTests
-func initialise() Handler {
+func Initialise() Handler {
 	err := godotenv.Load("../.env")
 	if err != nil {
 		log.Fatalf("Error loading .env file")
@@ -29,7 +29,7 @@ func initialise() Handler {
 }
 
 // Drop the table after testing.
-func dropTable(handler Handler) {
+func DropTable(handler Handler) {
 
 	handler.DB.Migrator().DropTable(&model.Employee{})
 	handler.DB.Migrator().DropTable(&model.Event{})

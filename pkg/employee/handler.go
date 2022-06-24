@@ -1,30 +1,40 @@
-package handler
+package employee
 
 import (
 	"encoding/json"
-	"example.com/hello/model"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strings"
 )
 
+type Task struct {
+	repo EmployeeRepository
+}
+
+func NewTask(empRepo EmployeeRepository) *Task {
+	return &Task{
+		repo: empRepo,
+	}
+}
+
 // GetEmployees
 // Get List of Employees in the Organization/**
-func (h Handler) GetEmployees(w http.ResponseWriter, r *http.Request) {
+func (emp *Task) GetEmployees(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var employee []model.Employee
-	h.DB.Order("id asc").Find(&employee)
-	err := json.NewEncoder(w).Encode(employee)
-	if err != nil {
-		return
+	employee, error := emp.repo.GetEmployees()
+	if error == nil {
+		err := json.NewEncoder(w).Encode(employee)
+		if err != nil {
+			return
+		}
 	}
 }
 
 // CreateEmployee
 // Create an Employee to the Organization
-func (h Handler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
+func (emp *Task) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var employee model.Employee
+	var employee Employee
 	requestBodyError := json.NewDecoder(r.Body).Decode(&employee)
 	if requestBodyError != nil {
 		// If request body doesn't fit according to the requirements
@@ -35,7 +45,7 @@ func (h Handler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	error := h.DB.Create(&employee).Error
+	employee, error := emp.repo.CreateEmployee(employee)
 	if error == nil {
 		w.WriteHeader(http.StatusCreated)
 		err := json.NewEncoder(w).Encode(employee)
@@ -54,11 +64,11 @@ func (h Handler) CreateEmployee(w http.ResponseWriter, r *http.Request) {
 
 // UpdateEmployee
 // Updates the Employee for the provided id in the url
-func (h Handler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
+func (emp *Task) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	var employee model.Employee
-	notFoundError := h.DB.First(&employee, params["employee_id"]).Error
+	var employee Employee
+	employee, notFoundError := emp.repo.FetchFirstEmployee(employee, params["employee_id"])
 	if notFoundError != nil {
 		//If employee record not found with the provided id.
 		w.WriteHeader(http.StatusNotFound)
@@ -78,7 +88,7 @@ func (h Handler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	error := h.DB.Save(&employee).Error
+	employee, error := emp.repo.UpdateEmployee(employee)
 	if error == nil {
 		w.WriteHeader(http.StatusCreated)
 		err := json.NewEncoder(w).Encode(employee)
@@ -97,11 +107,11 @@ func (h Handler) UpdateEmployee(w http.ResponseWriter, r *http.Request) {
 
 // DeleteEmployee
 // Delete Employee from the records
-func (h Handler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
+func (emp *Task) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	var employee model.Employee
-	notFoundError := h.DB.First(&employee, params["employee_id"]).Error
+	var employee Employee
+	employee, notFoundError := emp.repo.FetchFirstEmployee(employee, params["employee_id"])
 	if notFoundError != nil {
 		//If employee record not found with the provided id.
 		w.WriteHeader(http.StatusNotFound)
@@ -112,7 +122,7 @@ func (h Handler) DeleteEmployee(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	error := h.DB.Delete(&employee, params["employee_id"]).Error
+	employee, error := emp.repo.DeleteEmployee(employee, params["employee_id"])
 	if error == nil {
 		w.WriteHeader(http.StatusCreated)
 		err := json.NewEncoder(w).Encode("Employee is deleted ||")

@@ -1,17 +1,25 @@
-package handler
+package event
 
 import (
 	"encoding/json"
-	"example.com/hello/model"
 	"github.com/gorilla/mux"
 	"net/http"
-	"time"
 )
 
+type Task struct {
+	repo EventRepository
+}
+
+func NewTask(eveRepo EventRepository) *Task {
+	return &Task{
+		repo: eveRepo,
+	}
+}
+
 // CreateEvent
-func (h Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
+func (eve *Task) CreateEvent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var event model.Event
+	var event Event
 	requestBodyError := json.NewDecoder(r.Body).Decode(&event)
 	if requestBodyError != nil {
 		// Error in the request body.
@@ -23,7 +31,7 @@ func (h Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	error := h.DB.Create(&event).Error
+	event, error := eve.repo.CreateEvent(event)
 	if error == nil {
 		w.WriteHeader(http.StatusCreated)
 		err := json.NewEncoder(w).Encode(event)
@@ -42,11 +50,11 @@ func (h Handler) CreateEvent(w http.ResponseWriter, r *http.Request) {
 
 // GetEvent
 // Get a specific event details.
-func (h Handler) GetEvent(w http.ResponseWriter, r *http.Request) {
+func (eve *Task) GetEvent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
-	var event model.Event
-	notFoundError := h.DB.Find(&event, params["event_id"]).Error
+	var event Event
+	event, notFoundError := eve.repo.GetEvent(params["event_id"])
 	if notFoundError == nil {
 		w.WriteHeader(http.StatusCreated)
 		err := json.NewEncoder(w).Encode(event)
@@ -65,12 +73,25 @@ func (h Handler) GetEvent(w http.ResponseWriter, r *http.Request) {
 
 // GetUpcomingEvents
 // Considering event for complete day, which starts at 00:00 hours
-func (h Handler) GetUpcomingEvents(w http.ResponseWriter, r *http.Request) {
+func (eve *Task) GetUpcomingEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var event []model.Event
-	h.DB.Order("id asc").Find(&event, "date > ?", time.Now().Add(-24*time.Hour))
+	var event []Event
+	event, error := eve.repo.GetUpcomingEvents()
+
+	if error != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		err := json.NewEncoder(w).Encode(error.Error())
+		if err != nil {
+			return
+		}
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
 	err := json.NewEncoder(w).Encode(event)
 	if err != nil {
 		return
 	}
+	return
+
 }

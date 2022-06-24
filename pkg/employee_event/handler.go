@@ -1,19 +1,28 @@
-package handler
+package employee_event
 
 import (
 	"encoding/json"
-	"example.com/hello/model"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
 )
 
+type Task struct {
+	repo EmployeeEventRepository
+}
+
+func NewTask(empEvenRepo EmployeeEventRepository) *Task {
+	return &Task{
+		repo: empEvenRepo,
+	}
+}
+
 // AddEmployeeForEvent
 // Add an employee to the event.
-func (h Handler) AddEmployeeForEvent(w http.ResponseWriter, r *http.Request) {
+func (empEve *Task) AddEmployeeForEvent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r) //Get the params from the url
-	var eventEmployees model.EventEmployees
+	var eventEmployees EventEmployees
 	//Convert String value to integer
 	eventId, conversionError := strconv.Atoi(params["event_id"])
 	if conversionError != nil {
@@ -31,8 +40,7 @@ func (h Handler) AddEmployeeForEvent(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(requestBodyError.Error())
 		return
 	}
-
-	err := h.DB.Create(&eventEmployees).Error
+	eventEmployees, err := empEve.repo.AddEmployeeToEvent(eventEmployees)
 	if err == nil {
 		w.WriteHeader(http.StatusCreated)
 		json.NewEncoder(w).Encode(eventEmployees)
@@ -45,13 +53,13 @@ func (h Handler) AddEmployeeForEvent(w http.ResponseWriter, r *http.Request) {
 
 // GetEmployeesForEvent
 // Get the list of Employees for a particular Event.
-func (h Handler) GetEmployeesForEvent(w http.ResponseWriter, r *http.Request) {
+func (empEve *Task) GetEmployeesForEvent(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r)
 	accommodationQuery := r.URL.Query().Get("is_accommodation_required")
-	var event model.Event
 	var err error
-	notFoundError := h.DB.First(&event, params["event_id"]).Error
+
+	evn, notFoundError := empEve.repo.FindEvent(params["event_id"])
 	if notFoundError != nil {
 		//If employee record not found with the provided id.
 		w.WriteHeader(http.StatusNotFound)
@@ -61,19 +69,25 @@ func (h Handler) GetEmployeesForEvent(w http.ResponseWriter, r *http.Request) {
 
 	// If Query Parameters is not empty
 	if accommodationQuery != "" {
-		err = h.DB.Preload("Employees", "is_accommodation_required", accommodationQuery).Find(&event, params["event_id"]).Error
+		evn, err = empEve.repo.GetEmployeesForEventWithAccommodationQuery(params["event_id"], accommodationQuery)
 	} else {
-		err = h.DB.Preload("Employees").Find(&event, params["event_id"]).Error
+		evn, err = empEve.repo.GetEmployeesForEvent(params["event_id"])
 	}
 
 	if err == nil {
 		w.WriteHeader(http.StatusCreated)
-		json.NewEncoder(w).Encode(event)
+		err := json.NewEncoder(w).Encode(evn)
+		if err != nil {
+			return
+		}
 		return
 	} else {
 		// Error while fetching the records
 		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(err.Error())
+		err := json.NewEncoder(w).Encode(err.Error())
+		if err != nil {
+			return
+		}
 		return
 	}
 }
