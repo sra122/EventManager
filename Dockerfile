@@ -1,24 +1,19 @@
 #!/usr/bin/env bash
 
-FROM golang:alpine as builder
+FROM golang:latest
+
+RUN mkdir /app
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY ./ /app
+
+RUN cd /app
+
 RUN go mod download
 
-COPY . ./
-
-RUN CGO_ENABLED=0 GOOS=linux go build -o /hello
-
-FROM alpine:latest
-
-WORKDIR /
-
-RUN apk --no-cache add ca-certificates
-
-COPY --from=builder /hello /hello
+RUN go build
 
 EXPOSE 8080
 
-ENTRYPOINT ["/hello"]
+ENTRYPOINT ["/app/hello"]
